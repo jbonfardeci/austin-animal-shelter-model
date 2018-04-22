@@ -307,3 +307,45 @@ class Utilities:
             i+=1
 
         return data
+    
+    # Lasso feature selection
+    @staticmethod
+    def get_lasso_selection(X, y, columns):
+        """
+        Select significant variables according to Lasso.
+        Best model is selected by cross-validation.
+        @param X <Pandas Dataframe>
+        @param y <list>
+        @columns <list>
+        @returns <list>
+        """
+        clf = LassoCV(max_iter=10000)
+        sfm = SelectFromModel(clf)
+        sfm.fit(X, y)
+        #features = sfm.transform(X).shape[1]
+        feature_indices = sfm.get_support()
+        significant_features = []
+        for c, b in zip(columns, feature_indices):
+            if b:
+                significant_features.append(c)
+                
+        return significant_features
+        
+    @staticmethod
+    def remove_insignificant_vars(sig_var_list, df):
+        """
+        Remove insignificant variables from a DataFrame.
+        @param sig_var_list <list>
+        @param df <DataFrame>
+        @returns <DataFrame>
+        """
+        drop = []
+        cols = df.columns.tolist()
+        for v in cols:
+            if not v in sig_var_list:
+                drop.append(v)
+                df = df.drop(str(v), 1)
+                
+           
+        print('\r\nDropped insignificant vars: ', ', '.join(drop))
+        return df
