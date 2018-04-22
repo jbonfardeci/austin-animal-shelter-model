@@ -99,9 +99,10 @@ class Utilities:
         """
         best_tpr = 0.0; best_fpr = 0.0; best_cutoff = 0.0; best_ba = 0.0; 
         cutoff = 0.0
+        cm = [[0,0],[0,0]]
         while cutoff < 1.0:
-            cm = Utilities.get_confusion_matrix(cutoff=cutoff, actual=actual, prob=prob)
-            _tpr, _fpr = Utilities.get_tpr_fpr(cm)
+            _cm = Utilities.get_confusion_matrix(cutoff=cutoff, actual=actual, prob=prob)
+            _tpr, _fpr = Utilities.get_tpr_fpr(_cm)
 
             if(_tpr < 1.0):    
                 ba = Utilities.get_balanced_accuracy(tpr=_tpr, fpr=_fpr)
@@ -111,17 +112,23 @@ class Utilities:
                     best_cutoff = cutoff
                     best_tpr = _tpr
                     best_fpr = _fpr
+                    cm = _cm
 
             cutoff += 0.01
 
-        return [best_tpr, best_fpr, best_cutoff]
+        tn = cm[0][0]; fp = cm[0][1]; fn = cm[1][0]; tp = cm[1][1];
+        return [best_tpr, best_fpr, best_cutoff, tn, fp, fn, tp]
 
     @staticmethod
     def show_confusion_matrix(C, class_labels=['0','1'], figsize=(6,6), fontsize=12, filename='roc-curve'):
         """
         C: ndarray, shape (2,2) as given by scikit-learn confusion_matrix function
         class_labels: list of strings, default simply labels 0 and 1.
-
+        Sensitivity: TruePos / (True Pos + False Neg) 
+        Specificity: True Neg / (False Pos + True Neg)
+        TN | FP
+        -------
+        FN | TP
         Draws confusion matrix with associated metrics.
         https://notmatthancock.github.io/2015/10/28/confusion-matrix.html
         """
@@ -129,10 +136,13 @@ class Utilities:
 
         # true negative, false positive, etc...
         tn = C[0,0]; fp = C[0,1]; fn = C[1,0]; tp = C[1,1];
+        sensitivity = tp / (tp + fn)
+        specificity = tn / (fp + tn)
+        precision = tp / (tp+fp)
 
         NP = fn+tp # Num positive examples
         NN = tn+fp # Num negative examples
-        N  = NP+NN
+        #N  = NP+NN
 
         fig = plt.figure(figsize=figsize)
         ax  = fig.add_subplot(111)
@@ -190,19 +200,20 @@ class Utilities:
 
         # Fill in secondary metrics: accuracy, true pos rate, etc...
         ax.text(2,0,
-                'False Pos Rate: %.4f'%(fp / (fp+tn+0.)),
+                'False Pos Rate: {:2.4%}\n(True Neg Rate. {:2.3%})'\
+                .format(1-specificity, specificity),
                 va='center',
                 ha='center',
                 bbox=dict(fc='w',boxstyle='round,pad=1'))
 
         ax.text(2,1,
-                'True Pos Rate: %.4f'%(tp / (tp+fn+0.)),
+                'True Pos Rate: {:2.4%}'.format(sensitivity),
                 va='center',
                 ha='center',
                 bbox=dict(fc='w',boxstyle='round,pad=1'))
 
         ax.text(2,2,
-                'Accuracy: %.4f'%((tp+tn+0.)/N),
+                'Precision: %.4f'%(precision),
                 va='center',
                 ha='center',
                 bbox=dict(fc='w',boxstyle='round,pad=1'))

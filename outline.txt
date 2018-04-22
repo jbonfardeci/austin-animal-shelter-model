@@ -1,0 +1,19 @@
+Figure 1.0 - Global variables
+Figure 1.1 - Import External Libraries
+SAMPLE Figure 
+	2.0 - Import Raw Data
+EXPLORE
+	Figure 3.0 - Univariate Analysis
+MODIFY
+	Figure 4.0 - Transform the Dataset
+	Figure 4.1 - Get Estmimates Coefficients and P-values
+	Figure 4.1 - Variable Selection
+	Figure 4.2 - Re-run Estimates After Variable Selection (Adj. R-Square improves)
+	Figure 4.3 - Display Selected Variable Effects
+
+MODEL & ASSESS
+	Figure 5.0 LDA
+	Figure 5.1 Logit
+
+LDA -   Means:  TPR: 0.87269, TNR: 0.63070, Cutoff: 0.39200
+Logit - Means:  TPR: 0.87232, TNR: 0.63101, Cutoff: 0.40000
