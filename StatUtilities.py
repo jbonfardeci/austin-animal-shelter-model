@@ -9,9 +9,7 @@ import pandas as pd
 import numpy as np
 from itertools import cycle
 from sklearn.metrics import roc_curve, auc, confusion_matrix
-import re
 import statsmodels.api as sm
-import os
 from copy import copy
 from sklearn.linear_model import LogisticRegression, Lasso, LassoCV
 from sklearn.feature_selection import RFE, SelectFromModel
@@ -20,7 +18,7 @@ import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
 class Utilities:
-
+    
     @staticmethod
     def get_balanced_accuracy(tpr, fpr):
         """
@@ -31,6 +29,14 @@ class Utilities:
         @param fpr: float (False Positive Rate - the 1-Specificity)
         @returns float
         """
+        if not isinstance(tpr, float):
+            print("'tpr' is not of type float!")
+            return None
+        
+        if not isinstance(fpr, float):
+            print("'fpr' is not of type float!")
+            return None
+        
         return (tpr + (1-fpr)) / 2
 
     @staticmethod
@@ -59,6 +65,18 @@ class Utilities:
         @param prob <list>
         @returns 2D array <list<list>>
         """
+        if not isinstance(cutoff, float):
+            print("'cutoff' is not of type float!")
+            return None
+        
+        if not isinstance(actual, np.ndarray):
+            print("'actual' is not of type ndarray!")
+            return None
+        
+        if not isinstance(prob, np.ndarray):
+            print("'prob' is not of type ndarray!")
+            return None
+        
         pred = []
         for (x, y) in prob:
             pred.append(1 if y >= cutoff else 0)
@@ -97,6 +115,14 @@ class Utilities:
         @param prob <list<tuple<float, float>>>
         @returns <list<float>>
         """
+        if not isinstance(actual, np.ndarray):
+            print("'actual' is not of type ndarray!")
+            return None
+        
+        if not isinstance(prob, np.ndarray):
+            print("'prob' is not of type ndarray!")
+            return None
+        
         best_tpr = 0.0; best_fpr = 0.0; best_cutoff = 0.0; best_ba = 0.0; 
         cutoff = 0.0
         cm = [[0,0],[0,0]]
@@ -239,10 +265,15 @@ class Utilities:
         plt.show()
     
     @staticmethod
-    def show_roc(kfolds, mean_tpr, mean_fpr, title, lw=2, filename='roc'):
+    def show_roc(kfolds, mean_tpr, mean_fpr, title='ROC Curve', lw=2, filename='roc'):
         """
         Display and save ROC curve
         """
+        
+        assert isinstance(kfolds, list), "'kfolds' should be of type list."
+        assert isinstance(mean_tpr, np.ndarray), "'mean_tpr' should be of type ndarray."
+        assert isinstance(mean_fpr, np.ndarray), "'mean_fpr' should be of type ndarray."
+        
         plt.figure(figsize=(12,12))
         colors = cycle(['cyan', 'red', 'seagreen', 'darkorange', 'blue'])
 
@@ -345,7 +376,6 @@ class Utilities:
             if not v in sig_var_list:
                 drop.append(v)
                 df = df.drop(str(v), 1)
-                
-           
+                  
         print('\r\nDropped insignificant vars: ', ', '.join(drop))
         return df
